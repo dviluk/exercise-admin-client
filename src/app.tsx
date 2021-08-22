@@ -1,13 +1,12 @@
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
-import type { RunTimeLayoutConfig } from 'umi';
-import { history, Link } from 'umi';
+import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
+import { history } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
-import { BookOutlined, LinkOutlined } from '@ant-design/icons';
+import { currentUser as queryCurrentUser } from './services/user/api';
 
-const isDev = process.env.NODE_ENV === 'development';
+// const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
 /** 获取用户信息比较慢的时候会展示一个 loading */
@@ -32,7 +31,10 @@ export async function getInitialState(): Promise<{
     }
     return undefined;
   };
-  // 如果是登录页面，不执行
+
+  // Si  el usuario accede al sitio por primera vez y la URL es
+  // diferente a la del formulario login, entonces, se intentara consultar
+  // el perfil del usuario
   if (history.location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
     return {
@@ -41,6 +43,7 @@ export async function getInitialState(): Promise<{
       settings: {},
     };
   }
+
   return {
     fetchUserInfo,
     settings: {},
@@ -63,21 +66,51 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
         history.push(loginPath);
       }
     },
-    links: isDev
-      ? [
-          <Link to="/umi/plugin/openapi" target="_blank">
-            <LinkOutlined />
-            <span>OpenAPI 文档</span>
-          </Link>,
-          <Link to="/~docs">
-            <BookOutlined />
-            <span>业务组件文档</span>
-          </Link>,
-        ]
-      : [],
+    links: [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
     ...initialState?.settings,
   };
+};
+
+const AddMiscHeadersInterceptor = (url: string, options: any) => {
+  const headers = {
+    'X-Requested-With': 'XMLHttpRequest',
+    Accept: 'application/json',
+  };
+
+  return {
+    url: `${url}`,
+    options: { ...options, interceptors: true, headers },
+  };
+};
+
+const AddBearerTokenInterceptor = (url: string, options: any) => {
+  const token = localStorage.getItem('token');
+
+  if (token === null) {
+    return {
+      ...options,
+      url,
+    };
+  }
+
+  const authHeader = {
+    ...options.headers,
+    Authorization: `Bearer ${token}`,
+  };
+
+  // if (url === '/landing') {
+  //  omit token
+  // }
+
+  return {
+    url: `${url}`,
+    options: { ...options, interceptors: true, headers: authHeader },
+  };
+};
+
+export const request: RequestConfig = {
+  requestInterceptors: [AddMiscHeadersInterceptor, AddBearerTokenInterceptor],
 };

@@ -3,7 +3,7 @@ import { Tag, message } from 'antd';
 import { groupBy } from 'lodash';
 import moment from 'moment';
 import { useModel, useRequest } from 'umi';
-import { getNotices } from '@/services/ant-design-pro/api';
+import { getNotices } from '@/services/user/api';
 
 import NoticeIcon from './NoticeIcon';
 import styles from './index.less';
@@ -126,22 +126,22 @@ const NoticeIconView = () => {
         tabKey="notification"
         count={unreadMsg.notification}
         list={noticeData.notification}
-        title="通知"
-        emptyText="你已查看所有通知"
+        title="Notifications"
+        emptyText="Nothing"
         showViewMore
       />
       <NoticeIcon.Tab
         tabKey="message"
         count={unreadMsg.message}
         list={noticeData.message}
-        title="消息"
-        emptyText="您已读完所有消息"
+        title="Mensajes"
+        emptyText="Nothing"
         showViewMore
       />
       <NoticeIcon.Tab
         tabKey="event"
-        title="待办"
-        emptyText="你已完成所有待办"
+        title="Eventos"
+        emptyText="Nothing"
         count={unreadMsg.event}
         list={noticeData.event}
         showViewMore

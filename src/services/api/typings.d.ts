@@ -2,6 +2,41 @@
 /* eslint-disable */
 
 declare namespace API {
+  type Response<T = {}> = {
+    success: boolean;
+    errorCode?: string;
+    errorMessage?: string;
+    message?: string;
+    data: T;
+  };
+
+  type SimpleResponse = {
+    success: boolean;
+    message?: string;
+  };
+
+  type CollectionResponse<T> = Response<T[]> & { total: number };
+
+  type PaginationParams<T> = T & {
+    pageSize: number;
+    current: number;
+  };
+
+  namespace Difficulties {
+    type CollectionParams = PaginationParams<Model>;
+
+    type Model = {
+      id: string;
+      name: string;
+      description: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+    };
+
+    type FormInput = Pick<Model, 'name' | 'description'>;
+  }
+
   type CurrentUser = {
     name?: string;
     avatar?: string;

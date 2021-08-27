@@ -4,7 +4,7 @@ import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
 import { history } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser as queryCurrentUser } from './services/user/api';
+import { currentUser as queryCurrentUser } from './services/api/user';
 
 // const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -76,12 +76,14 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
 
 const AddMiscHeadersInterceptor = (url: string, options: any) => {
   const headers = {
+    ...options.headers,
     'X-Requested-With': 'XMLHttpRequest',
     Accept: 'application/json',
+    'Content-Type': 'application/json',
   };
 
   return {
-    url: `${url}`,
+    url,
     options: { ...options, interceptors: true, headers },
   };
 };
@@ -96,7 +98,7 @@ const AddBearerTokenInterceptor = (url: string, options: any) => {
     };
   }
 
-  const authHeader = {
+  const headers = {
     ...options.headers,
     Authorization: `Bearer ${token}`,
   };
@@ -106,8 +108,8 @@ const AddBearerTokenInterceptor = (url: string, options: any) => {
   // }
 
   return {
-    url: `${url}`,
-    options: { ...options, interceptors: true, headers: authHeader },
+    url,
+    options: { ...options, interceptors: true, headers },
   };
 };
 

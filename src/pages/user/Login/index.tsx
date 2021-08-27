@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import ProForm, { ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
 import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
 import Footer from '@/components/Footer';
-import { login } from '@/services/user/api';
+import api from '@/services/api';
 
 import styles from './index.less';
 
@@ -43,7 +43,7 @@ const Login: React.FC = () => {
     setSubmitting(true);
     try {
       // Se intenta hacer el login
-      const msg = await login({ ...values });
+      const msg = await api.user.login({ ...values });
 
       if (msg.success && msg.data) {
         const defaultLoginSuccessMessage = intl.formatMessage({

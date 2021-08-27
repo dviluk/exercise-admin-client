@@ -1,0 +1,152 @@
+@import '~antd/es/style/themes/default.less';
+@import '~antd/es/button/style/mixin.less';
+
+// CUSTOM BUTTONS
+// Alternativa: https://gist.github.com/herudi/4c608737ae0816c45ba0c3b185556acf
+@btn-prefix-cls: ~'@{ant-prefix}-btn';
+
+@btn-success-color: #fff;
+@btn-success-bg: @success-color;
+
+@btn-warning-color: #fff;
+@btn-warning-bg: @warning-color;
+
+@btn-info-color: #fff;
+@btn-info-bg: @info-color;
+
+.my-btn-default(@my-text-color; @my-bg-color) {
+  .button-color(@my-text-color, @my-bg-color, @my-text-color);
+  &:hover,
+  &:focus {
+    & when (@theme = dark) {
+      .button-color(
+        ~`colorPalette('@{my-text-color}', 7) `; @my-bg-color; ~`colorPalette('@{my-text-color}', 7)
+          `
+      );
+    }
+    & when not (@theme = dark) {
+      .button-color(
+        ~`colorPalette('@{my-text-color}', 5) `; @my-bg-color; ~`colorPalette('@{my-text-color}', 5)
+          `
+      );
+    }
+  }
+  &:active {
+    & when (@theme = dark) {
+      .button-color(
+        ~`colorPalette('@{my-text-color}', 5) `; @my-bg-color; ~`colorPalette('@{my-text-color}', 5)
+          `
+      );
+    }
+    & when not (@theme = dark) {
+      .button-color(
+        ~`colorPalette('@{my-text-color}', 7) `; @my-bg-color; ~`colorPalette('@{my-text-color}', 7)
+          `
+      );
+    }
+  }
+  .button-disabled();
+}
+
+.my-btn(@my-text-color; @my-bg-color) {
+  .button-variant-primary(@my-text-color; @my-bg-color);
+}
+
+.my-btn-link(@my-text-color; @my-bg-color) {
+  .button-variant-other(@my-text-color, transparent, transparent);
+  box-shadow: none;
+  &:hover,
+  &:focus {
+    & when (@theme = dark) {
+      .button-color(~`colorPalette('@{my-text-color}', 7) `; transparent; transparent);
+    }
+    & when not (@theme = dark) {
+      .button-color(~`colorPalette('@{my-text-color}', 5) `; transparent; transparent);
+    }
+  }
+  &:active {
+    & when (@theme = dark) {
+      .button-color(~`colorPalette('@{my-text-color}', 5) `; transparent; transparent);
+    }
+    & when not (@theme = dark) {
+      .button-color(~`colorPalette('@{my-text-color}', 7) `; transparent; transparent);
+    }
+  }
+  .button-disabled(@disabled-color; transparent; transparent);
+}
+
+.my-btn-text(@my-text-color; @my-bg-color) {
+  .button-variant-other(@my-text-color, transparent, transparent);
+  box-shadow: none;
+  &:hover,
+  &:focus {
+    & when (@theme = dark) {
+      .button-color(~`colorPalette('@{my-text-color}', 7) `; @btn-text-hover-bg; transparent);
+    }
+    & when not (@theme = dark) {
+      .button-color(~`colorPalette('@{my-text-color}', 5) `; @btn-text-hover-bg; transparent);
+    }
+  }
+
+  &:active {
+    & when (@theme = dark) {
+      .button-color(~`colorPalette('@{my-text-color}', 5) `; fadein(@btn-text-hover-bg, 1%); transparent);
+    }
+    & when not (@theme = dark) {
+      .button-color(~`colorPalette('@{my-text-color}', 7) `; fadein(@btn-text-hover-bg, 1%); transparent);
+    }
+  }
+  .button-disabled(@disabled-color; transparent; transparent);
+}
+
+.@{btn-prefix-cls} {
+  &-success {
+    .my-btn-default(@btn-success-color, @btn-success-bg);
+  }
+
+  &-success&-primary {
+    .my-btn(@btn-success-color, @btn-success-bg);
+  }
+
+  &-success&-link {
+    .my-btn-link(@btn-success-bg, @btn-success-color);
+  }
+
+  &-success&-text {
+    .my-btn-text(@btn-success-color, @btn-success-bg);
+  }
+
+  
+  &-warning {
+    .my-btn-default(@btn-warning-color, @btn-warning-bg);
+  }
+
+  &-warning&-primary {
+    .my-btn(@btn-warning-color, @btn-warning-bg);
+  }
+
+  &-warning&-link {
+    .my-btn-link(@btn-warning-bg, @btn-warning-color);
+  }
+
+  &-warning&-text {
+    .my-btn-text(@btn-warning-color, @btn-warning-bg);
+  }
+
+
+  &-info {
+    .my-btn-default(@btn-info-color, @btn-info-bg);
+  }
+
+  &-info&-primary {
+    .my-btn(@btn-info-color, @btn-info-bg);
+  }
+
+  &-info&-link {
+    .my-btn-link(@btn-info-bg, @btn-info-color);
+  }
+
+  &-info&-text {
+    .my-btn-text(@btn-info-color, @btn-info-bg);
+  }
+}

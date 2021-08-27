@@ -29,8 +29,13 @@
     name: 'admin',
     icon: 'crown',
     access: 'canAdmin',
-    component: './Admin',
     routes: [
+      {
+        path: '/admin/difficulties',
+        name: 'difficulties',
+        icon: 'smile',
+        component: './admin/difficulties/index',
+      },
       {
         path: '/admin/sub-page',
         name: 'sub-page',

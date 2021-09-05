@@ -1,6 +1,6 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, message, Tabs } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProForm, { ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
 import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
 import Footer from '@/components/Footer';
@@ -21,12 +21,28 @@ const LoginMessage: React.FC<{
   />
 );
 
+function followRedirect() {
+  // Cuando existe history se intenta obtener el query redirect
+  if (!history) return;
+  const { query } = history.location;
+  const { redirect } = query as { redirect: string };
+  history.push(redirect || '/');
+}
+
 const Login: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
   const { initialState, setInitialState } = useModel('@@initialState');
 
   const intl = useIntl();
+
+  useEffect(() => {
+    fetchUserInfo();
+
+    if (initialState?.currentUser) {
+      followRedirect();
+    }
+  }, [initialState]);
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
@@ -56,11 +72,7 @@ const Login: React.FC = () => {
 
         await fetchUserInfo();
 
-        // Cuando existe history se intenta obtener el query redirect
-        if (!history) return;
-        const { query } = history.location;
-        const { redirect } = query as { redirect: string };
-        history.push(redirect || '/');
+        followRedirect();
         return;
       }
 

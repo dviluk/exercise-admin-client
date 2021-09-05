@@ -8,15 +8,16 @@ interface ModalShowOptions<T, M> {
   title?: string;
 }
 
-type FormAction = 'creating' | 'editing' | 'deleting';
-type FormType = 'primary' | 'danger' | 'warning' | 'info' | 'success';
+export type FormAction = 'creating' | 'editing' | 'deleting' | 'restoring';
+export type FormType = 'primary' | 'danger' | 'warning' | 'info' | 'success';
 
 interface onSubmitOptions<T, M> {
   form: ProFormInstance<T>;
-  model?: M;
+  model?: API.Model<M>;
+  modal: MultiForm<T, M>;
   action: FormAction;
 }
-interface ModalProps<T, M> extends Pick<ModalFormProps<T>, 'width'> {
+export interface ModalProps<T, M> extends Pick<ModalFormProps<T>, 'width'> {
   /**
    * Acción al enviar el formulario.
    */
@@ -28,7 +29,7 @@ interface ModalProps<T, M> extends Pick<ModalFormProps<T>, 'width'> {
   /**
    * Contenido por default.
    */
-  children: React.ReactNode;
+  children: React.ReactNode | ((options: onSubmitOptions<T, M>) => React.ReactNode);
   /**
    * Titilo por default.
    */
@@ -43,7 +44,7 @@ interface ModalProps<T, M> extends Pick<ModalFormProps<T>, 'width'> {
   action?: FormAction;
 }
 
-interface ModalState<T, M> {
+export interface ModalState<T, M> {
   /**
    * Indica si el modelo se esta mostrando
    */
@@ -71,11 +72,11 @@ interface ModalState<T, M> {
    * Modelo que se esta usando en el modal. Común mente es el resource que se esta
    * editando en el modal.
    */
-  model?: M;
+  model?: API.Model<M>;
   /**
    * Indica el modo en el que se encuentra el formulario.
    */
-  action?: FormAction;
+  action: FormAction;
   /**
    * Indica el tipo del formulario, según el tipo se mostraran colores diferentes.
    */
@@ -98,7 +99,7 @@ export default class MultiForm<T, M = {}> extends React.Component<
     onSubmit: undefined,
     model: undefined,
     content: undefined,
-    action: undefined,
+    action: 'creating',
     type: undefined,
   };
 
@@ -136,6 +137,7 @@ export default class MultiForm<T, M = {}> extends React.Component<
                 form,
                 model: this.state.model,
                 action: this.state.action || this.props.action!,
+                modal: this,
               });
             }
 
@@ -162,9 +164,25 @@ export default class MultiForm<T, M = {}> extends React.Component<
           },
         }}
       >
-        <Spin spinning={this.state.loading}>{this.state.content || this.props.children}</Spin>
+        {this.renderChildren()}
       </ModalForm>
     );
+  }
+
+  private renderChildren() {
+    const { content, loading, model, action } = this.state;
+    const { children } = this.props;
+    let contentToShow: any = null;
+
+    if (this.state.content) {
+      contentToShow = content;
+    } else if (typeof children === 'function') {
+      contentToShow = children({ form: this.getFormInstance(), model, action, modal: this });
+    } else {
+      contentToShow = children;
+    }
+
+    return <Spin spinning={loading}>{contentToShow}</Spin>;
   }
 
   public async show(options: ModalShowOptions<T, M> = {}) {
@@ -191,7 +209,7 @@ export default class MultiForm<T, M = {}> extends React.Component<
       title: this.props.title || '',
       onSubmit: undefined,
       model: undefined,
-      action: undefined,
+      action: 'creating',
       type: undefined,
       content: undefined,
     });
@@ -211,7 +229,7 @@ export default class MultiForm<T, M = {}> extends React.Component<
     this.setState({ content });
   }
 
-  public setModel(model: M) {
+  public setModel(model: API.Model<M>) {
     this.setState({ model });
   }
 
@@ -221,6 +239,10 @@ export default class MultiForm<T, M = {}> extends React.Component<
 
   public set(state: Partial<ModalState<T, M>>) {
     this.setState({ ...(state as any) });
+  }
+
+  public getModel() {
+    return this.state.model;
   }
 
   public getFormInstance() {

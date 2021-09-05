@@ -2,12 +2,33 @@
 /* eslint-disable */
 
 declare namespace API {
+  type SimpleCrud<M, CP, FI, EM = {}> = {
+    find: (id: string, data?: any, options?: any) => Promise<API.Response<M>>;
+    all: (data: CP) => Promise<API.CollectionResponse<M>>;
+    store: (data: Partial<FI>, options?: any) => Promise<API.Response<M>>;
+    update: (
+      id: string,
+      data: Partial<FI & API.OnlyTrashed>,
+      options?: any,
+    ) => Promise<API.Response<M>>;
+    destroy: (id: string, data?: any, options?: any) => Promise<API.SimpleResponse>;
+    restore: (id: string, data?: any, options?: any) => Promise<API.SimpleResponse>;
+  } & EM;
+
+  type Model<M> = {
+    id: string;
+  } & M;
+
   type Response<T = {}> = {
     success: boolean;
     errorCode?: string;
     errorMessage?: string;
     message?: string;
     data: T;
+  };
+
+  type OnlyTrashed = {
+    onlyTrashed?: boolean;
   };
 
   type SimpleResponse = {
@@ -20,10 +41,149 @@ declare namespace API {
   type PaginationParams<T> = T & {
     pageSize: number;
     current: number;
-  };
+  } & OnlyTrashed;
 
   namespace Difficulties {
-    type CollectionParams = PaginationParams<Model>;
+    type TableParams = PaginationParams<
+      Pick<Model, 'name'> & { created_at_range: [string, string] }
+    >;
+
+    type CollectionParams = PaginationParams<Pick<Model, 'name'>>;
+
+    type Model = {
+      id: string;
+      name: string;
+      description: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+    };
+
+    type FormInput = Pick<Model, 'name' | 'description'>;
+  }
+
+  namespace Equipment {
+    type TableParams = PaginationParams<
+      Pick<Model, 'name'> & { created_at_range: [string, string] }
+    >;
+
+    type CollectionParams = Partial<PaginationParams<Pick<Model, 'name'>> & { created_at: string }>;
+
+    type Model = {
+      id: string;
+      image_url: string;
+      image_thumbnail_url: string;
+      name: string;
+      description: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+    };
+
+    type FormInput = Pick<Model, 'name' | 'description'> & { image: File };
+  }
+
+  namespace Goals {
+    type TableParams = PaginationParams<
+      Pick<Model, 'name'> & { created_at_range: [string, string] }
+    >;
+
+    type CollectionParams = Partial<PaginationParams<Pick<Model, 'name'>> & { created_at: string }>;
+
+    type Model = {
+      id: string;
+      name: string;
+      description: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+    };
+
+    type FormInput = Pick<Model, 'name' | 'description'>;
+  }
+
+  namespace Muscles {
+    type TableParams = PaginationParams<
+      Pick<Model, 'name'> & { created_at_range: [string, string] }
+    >;
+
+    type CollectionParams = Partial<PaginationParams<Pick<Model, 'name'>> & { created_at: string }>;
+
+    type Model = {
+      id: string;
+      name: string;
+      description: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+    };
+
+    type FormInput = Pick<Model, 'name' | 'description'>;
+  }
+
+  namespace Tags {
+    type TableParams = PaginationParams<
+      Pick<Model, 'name'> & { created_at_range: [string, string] }
+    >;
+
+    type CollectionParams = Partial<PaginationParams<Pick<Model, 'name'>> & { created_at: string }>;
+
+    type Model = {
+      id: string;
+      name: string;
+      description: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+    };
+
+    type FormInput = Pick<Model, 'name' | 'description'>;
+  }
+
+  namespace Units {
+    type TableParams = PaginationParams<
+      Pick<Model, 'name'> & { created_at_range: [string, string] }
+    >;
+
+    type CollectionParams = Partial<PaginationParams<Pick<Model, 'name'>> & { created_at: string }>;
+
+    type Model = {
+      id: string;
+      name: string;
+      description: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+    };
+
+    type FormInput = Pick<Model, 'name' | 'description'>;
+  }
+
+  namespace ExerciseGroups {
+    type TableParams = PaginationParams<
+      Pick<Model, 'name'> & { created_at_range: [string, string] }
+    >;
+
+    type CollectionParams = Partial<PaginationParams<Pick<Model, 'name'>> & { created_at: string }>;
+
+    type Model = {
+      id: string;
+      name: string;
+      description: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+    };
+
+    type FormInput = Pick<Model, 'name' | 'description'>;
+  }
+
+  namespace Exercises {
+    type TableParams = PaginationParams<
+      Pick<Model, 'name'> & { created_at_range: [string, string] }
+    >;
+
+    type CollectionParams = Partial<PaginationParams<Pick<Model, 'name'>> & { created_at: string }>;
 
     type Model = {
       id: string;

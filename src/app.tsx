@@ -4,7 +4,9 @@ import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
 import { history } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser as queryCurrentUser } from './services/api/user';
+import { currentUser as queryCurrentUser } from './services/api/session';
+import moment from 'moment-timezone';
+import _ from 'lodash';
 
 // const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -88,6 +90,28 @@ const AddMiscHeadersInterceptor = (url: string, options: any) => {
   };
 };
 
+const ChangeContentTypeIfFormData = (url: string, options: any) => {
+  const headers: any = {
+    ...options.headers,
+  };
+
+  if (options.body instanceof FormData) {
+    // Esto lo haría automaticamente si no se utilizara AddMiscHeadersInterceptor
+    delete headers['Content-Type'];
+
+    if (String(options.method).toLowerCase() !== 'post') {
+      const currentMethod = options.method;
+      options.method = 'POST';
+      options.body.append('_method', currentMethod);
+    }
+  }
+
+  return {
+    url,
+    options: { ...options, interceptors: true, headers },
+  };
+};
+
 const AddBearerTokenInterceptor = (url: string, options: any) => {
   const token = localStorage.getItem('token');
 
@@ -113,6 +137,46 @@ const AddBearerTokenInterceptor = (url: string, options: any) => {
   };
 };
 
+function AttachUserTimeZoneInterceptor(url: string, options: any) {
+  const timezone = moment.tz.guess();
+
+  const headers = {
+    ...options.headers,
+    timezone,
+  };
+
+  return {
+    url,
+    options: { ...options, interceptors: true, headers },
+  };
+}
+
+function TransformMethodInterceptor(url: string, options: any) {
+  const method = String(options.method).toLowerCase();
+
+  if (method === 'get') {
+    //
+  } else if (method !== 'post') {
+    options.data = {
+      ...options.data,
+      _method: options.method,
+    };
+
+    options.method = 'POST';
+  }
+
+  return {
+    url,
+    options: { ...options, interceptors: true },
+  };
+}
+
 export const request: RequestConfig = {
-  requestInterceptors: [AddMiscHeadersInterceptor, AddBearerTokenInterceptor],
+  requestInterceptors: [
+    AddMiscHeadersInterceptor,
+    AddBearerTokenInterceptor,
+    ChangeContentTypeIfFormData,
+    AttachUserTimeZoneInterceptor,
+    TransformMethodInterceptor,
+  ],
 };

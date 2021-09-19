@@ -33,7 +33,7 @@ interface ModalFormInputsProps<M, FI> extends Refs<M, FI> {
   /**
    * Contiene el recurso principal consultado.
    */
-  model: M;
+  model?: M;
 }
 
 type GetColumns<M = any, FI = any, CRUD = any> = (

@@ -149,7 +149,7 @@ export default class MultiForm<T, M = {}> extends React.Component<
             utils.form.setErrors(form, e);
 
             if (this.props.onError) {
-              this.props.onError(e);
+              this.props.onError(e as any);
             }
           } finally {
             this.loading(false);

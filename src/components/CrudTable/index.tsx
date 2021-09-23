@@ -8,7 +8,7 @@ import MultiForm, { FormAction } from '@/components/ModalForm';
 import utils from '@/utils';
 import { ProFormInstance, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 
-type CrudApi<M> = API.SimpleCrud<M, any, any>;
+type CrudApi<M> = API.SimpleCrud<M, any, any, any>;
 
 type SortType = {
   [key: string]: SortOrder;

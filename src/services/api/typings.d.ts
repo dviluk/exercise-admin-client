@@ -2,9 +2,31 @@
 /* eslint-disable */
 
 declare namespace API {
-  type SimpleCrud<M, CP, FI, EM = {}> = {
+  type SimpleCrud<
+    /**
+     * Model
+     */
+    M,
+    /**
+     * CollectionParams
+     */
+    CP,
+    /**
+     * FormInput
+     */
+    FI,
+    /**
+     * Select
+     */
+    SL,
+    /**
+     * ExtraMethods
+     */
+    EM = {},
+  > = {
     find: (id: string, data?: any, options?: any) => Promise<API.Response<M>>;
-    all: (data: CP) => Promise<API.CollectionResponse<M>>;
+    all: (data?: CP) => Promise<API.CollectionResponse<M>>;
+    select: (data?: CP) => Promise<API.Response<SL>>;
     store: (data: Partial<FI>, options?: any) => Promise<API.Response<M>>;
     update: (
       id: string,
@@ -41,7 +63,10 @@ declare namespace API {
   type PaginationParams<T> = T & {
     pageSize: number;
     current: number;
+    select?: boolean;
   } & OnlyTrashed;
+
+  type DefaultSelect<T = {}> = T & { value: string; label: string };
 
   namespace Difficulties {
     type TableParams = PaginationParams<

@@ -75,6 +75,8 @@ declare namespace API {
 
     type CollectionParams = PaginationParams<Pick<Model, 'name'>>;
 
+    type Select = DefaultSelect[];
+
     type Model = {
       id: string;
       name: string;
@@ -205,13 +207,24 @@ declare namespace API {
 
   namespace Exercises {
     type TableParams = PaginationParams<
-      Pick<Model, 'name'> & { created_at_range: [string, string] }
+      Pick<Model, 'name' | 'difficulty_id'> & { created_at_range: [string, string] }
     >;
 
-    type CollectionParams = Partial<PaginationParams<Pick<Model, 'name'>> & { created_at: string }>;
+    type CollectionParams = Partial<
+      PaginationParams<Pick<Model, 'name' | 'difficulty_id'>> & { created_at: string }
+    >;
 
     type Model = {
       id: string;
+      difficulty_id: string;
+      image: string;
+      image_url: string;
+      image_thumbnail: string;
+      image_thumbnail_url: string;
+      illustration: string;
+      illustration_url: string;
+      illustration_thumbnail: string;
+      illustration_thumbnail_url: string;
       name: string;
       description: string;
       created_at: string;
@@ -219,7 +232,10 @@ declare namespace API {
       deleted_at: string;
     };
 
-    type FormInput = Pick<Model, 'name' | 'description'>;
+    type FormInput = Pick<Model, 'name' | 'description' | 'difficulty_id'> & {
+      image: File;
+      illustration: File;
+    };
   }
 
   type CurrentUser = {

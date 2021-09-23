@@ -44,7 +44,13 @@ type GetFormInputs<M = any, FI = any> = (props: ModalFormInputsProps<M, FI>) => 
 
 export interface CrudTableProps<M, FI, CRUD extends CrudApi<M>> {
   /**
-   * Genera las columnas de la tabla
+   * Opciones para el modal.
+   */
+  modal?: {
+    title?: string;
+  };
+  /**
+   * Genera las columnas de la tabla.
    */
   columns?: GetColumns<M, FI, CRUD>;
   /**
@@ -75,7 +81,7 @@ export interface CrudTableProps<M, FI, CRUD extends CrudApi<M>> {
 
 export interface CrudTableState {
   /**
-   * Indica si se están mostrando los elementos eliminados
+   * Indica si se están mostrando los elementos eliminados.
    */
   onlyTrashed: boolean;
 }
@@ -200,6 +206,10 @@ export default class CrudTable<
   };
 
   renderToolbar = () => {
+    const { modal } = this.props;
+
+    const title = modal && modal.title;
+
     return [
       <Button
         icon={<PlusOutlined />}
@@ -207,8 +217,11 @@ export default class CrudTable<
         onClick={() => {
           const modal = this.modalRef.current!;
 
-          modal.setAction('creating');
-          modal.show();
+          modal.set({
+            action: 'creating',
+            title: title || 'create',
+            visible: true,
+          });
         }}
       />,
     ];

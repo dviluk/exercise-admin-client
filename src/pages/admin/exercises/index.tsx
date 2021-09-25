@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
-import api, { ExercisesApiType } from '@/services/api';
-import CrudTable, { CrudTableProps } from '@/components/CrudTable';
-import { ProFormText, ProFormTextArea, ProFormUploadButton } from '@ant-design/pro-form';
+import type { ExercisesApiType } from '@/services/api';
+import api from '@/services/api';
+import type { CrudTableProps } from '@/components/CrudTable';
+import CrudTable from '@/components/CrudTable';
+import { ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { Button, Image } from 'antd';
 import { DeleteFilled, EditFilled, RedoOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
+import ProSelectImage from '@/components/Fields/Pro/ProSelectImage';
 
 type Model = API.Exercises.Model;
 type FormInputs = API.Exercises.FormInput;
@@ -19,6 +22,7 @@ export default () => {
 
   useEffect(() => {
     difficulties.select.fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getColumns: CrudProps['columns'] = ({ onlyTrashed, modal, crud }) => [
@@ -133,7 +137,7 @@ export default () => {
                 children="Restore"
                 onClick={() => {
                   modal.show({
-                    loadModel: async (form, modal) => {
+                    loadModel: async (form) => {
                       modal.set({
                         action: 'restoring',
                         content: 'restore this item?',
@@ -158,7 +162,7 @@ export default () => {
                 children="Edit"
                 onClick={() => {
                   modal.show({
-                    loadModel: async (form, modal) => {
+                    loadModel: async (form) => {
                       modal.set({
                         action: 'editing',
                       });
@@ -181,7 +185,7 @@ export default () => {
               children={onlyTrashed ? 'Delete Permanently' : 'Delete'}
               onClick={() => {
                 modal.show({
-                  loadModel: async (form, modal) => {
+                  loadModel: async (form) => {
                     modal.set({
                       content: 'Are you sure delete this task?',
                       action: 'deleting',
@@ -206,29 +210,24 @@ export default () => {
     },
   ];
 
-  const getFormInputs: CrudProps['formInputs'] = ({ model, form }) => {
+  const getFormInputs: CrudProps['formInputs'] = ({ model }) => {
     return (
       <>
-        <ImageComponent
+        <ProSelectImage
           name="image"
-          defaultImageUrl={model && model.image_url}
-          defaultImageThumbnailUrl={model && model.image_thumbnail_url}
-          onRemove={() => {
-            form.setFieldsValue({ image: undefined });
-          }}
-          onSelect={(image) => {
-            form.setFieldsValue({ image });
+          label="Image"
+          fieldProps={{
+            defaultImageUrl: model && model.image_url,
+            defaultImageThumbnailUrl: model && model.image_thumbnail_url,
           }}
         />
-        <ImageComponent
+        <ProSelectImage
           name="illustration"
-          defaultImageUrl={model && model.illustration_url}
-          defaultImageThumbnailUrl={model && model.illustration_thumbnail_url}
-          onRemove={() => {
-            form.setFieldsValue({ illustration: undefined });
-          }}
-          onSelect={(illustration) => {
-            form.setFieldsValue({ illustration });
+          label="Illustration"
+          rules={[{ required: true }]}
+          fieldProps={{
+            defaultImageUrl: model && model.illustration_url,
+            defaultImageThumbnailUrl: model && model.illustration_thumbnail_url,
           }}
         />
         <ProFormText name="name" label="Name" rules={[{ required: true }]} />
@@ -247,64 +246,4 @@ export default () => {
       />
     </PageContainer>
   );
-};
-
-interface ImageComponentProps {
-  name: string;
-  defaultImageUrl?: string;
-  defaultImageThumbnailUrl?: string;
-  onRemove: Function;
-  onSelect: (image: File) => void;
-}
-const ImageComponent: React.FC<ImageComponentProps> = (props) => {
-  const { name, defaultImageUrl, defaultImageThumbnailUrl, onRemove, onSelect } = props;
-
-  const imageLoaded = defaultImageUrl || defaultImageThumbnailUrl;
-
-  return (
-    <>
-      <ProFormText hidden name={name} />
-
-      <div style={{ textAlign: 'center' }}>
-        {imageLoaded && (
-          <Image
-            src={defaultImageThumbnailUrl || imageLoaded}
-            preview={{ src: defaultImageUrl || imageLoaded }}
-            placeholder
-            width={100}
-            height={100}
-          />
-        )}
-        <ProFormUploadButton
-          listType={imageLoaded ? 'text' : 'picture-card'}
-          rules={[{ required: true }]}
-          fieldProps={{
-            maxCount: 1,
-            onRemove: () => {
-              if (onRemove) {
-                onRemove();
-              }
-            },
-            beforeUpload: (_, fileList) => {
-              if (onSelect) {
-                onSelect(fileList[0]);
-              }
-
-              return false;
-            },
-          }}
-        />
-      </div>
-    </>
-  );
-};
-
-interface SelectComponentProps<T> {
-  items: T;
-  onChange: (item: T) => void;
-}
-const SelectComponent: React.FC<SelectComponentProps<T>> = (props) => {
-  const {} = props;
-
-  return null;
 };

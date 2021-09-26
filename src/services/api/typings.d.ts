@@ -26,7 +26,7 @@ declare namespace API {
   > = {
     find: (id: string, data?: any, options?: any) => Promise<API.Response<M>>;
     all: (data?: CP) => Promise<API.CollectionResponse<M>>;
-    select: (data?: CP) => Promise<API.Response<SL>>;
+    select: (data?: CP) => Promise<API.CollectionResponse<SL>>;
     store: (data: Partial<FI>, options?: any) => Promise<API.Response<M>>;
     update: (
       id: string,
@@ -75,7 +75,7 @@ declare namespace API {
 
     type CollectionParams = PaginationParams<Pick<Model, 'name'>>;
 
-    type Select = DefaultSelect[];
+    type Select = DefaultSelect;
 
     type Model = {
       id: string;

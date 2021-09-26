@@ -1,7 +1,8 @@
-import React from 'react';
-import { Spin } from 'antd';
-import { ModalForm, ModalFormProps, ProFormInstance } from '@ant-design/pro-form';
 import utils from '@/utils';
+import type { ModalFormProps, ProFormInstance } from '@ant-design/pro-form';
+import { ModalForm } from '@ant-design/pro-form';
+import { Spin } from 'antd';
+import React from 'react';
 
 interface ModalShowOptions<T, M> {
   loadModel?: (formInstance: ProFormInstance<T>, modalInstance: MultiForm<T, M>) => Promise<void>;
@@ -111,6 +112,7 @@ export default class MultiForm<T, M = {}> extends React.Component<
     return (
       <ModalForm<T>
         formRef={this.formRef as any}
+        scrollToFirstError
         visible={this.state.visible}
         title={this.state.title}
         width={this.props.width}
@@ -192,7 +194,7 @@ export default class MultiForm<T, M = {}> extends React.Component<
       this.setState({ loading: false });
     }
 
-    var newState: Partial<ModalState<T, M>> = {
+    const newState: Partial<ModalState<T, M>> = {
       visible: true,
     };
 

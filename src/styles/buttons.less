@@ -54,6 +54,7 @@
 
 .my-btn-link(@my-text-color; @my-bg-color) {
   .button-variant-other(@my-text-color, transparent, transparent);
+
   box-shadow: none;
   &:hover,
   &:focus {
@@ -77,6 +78,7 @@
 
 .my-btn-text(@my-text-color; @my-bg-color) {
   .button-variant-other(@my-text-color, transparent, transparent);
+
   box-shadow: none;
   &:hover,
   &:focus {
@@ -116,7 +118,6 @@
     .my-btn-text(@btn-success-color, @btn-success-bg);
   }
 
-  
   &-warning {
     .my-btn-default(@btn-warning-color, @btn-warning-bg);
   }
@@ -132,7 +133,6 @@
   &-warning&-text {
     .my-btn-text(@btn-warning-color, @btn-warning-bg);
   }
-
 
   &-info {
     .my-btn-default(@btn-info-color, @btn-info-bg);

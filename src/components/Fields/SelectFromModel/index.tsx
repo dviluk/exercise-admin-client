@@ -34,6 +34,7 @@ function SelectFromModel<T extends string = string>(props: SelectFromModelProps<
         clearInterval(intervalForSelect);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function buildOptions() {

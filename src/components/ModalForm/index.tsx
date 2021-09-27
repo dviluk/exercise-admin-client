@@ -84,7 +84,7 @@ export interface ModalState<T, M> {
   type?: FormType;
 }
 
-export default class MultiForm<T, M = {}> extends React.Component<
+export default class MultiForm<T, M = any> extends React.Component<
   ModalProps<T, M>,
   ModalState<T, M>
 > {
@@ -157,8 +157,8 @@ export default class MultiForm<T, M = {}> extends React.Component<
             this.loading(false);
           }
         }}
-        onError={(e) => {
-          console.error('ModalForm.onError', e);
+        onError={() => {
+          // console.error('ModalForm.onError', e);
         }}
         modalProps={{
           onCancel: () => {

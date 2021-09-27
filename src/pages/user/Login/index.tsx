@@ -36,14 +36,6 @@ const Login: React.FC = () => {
 
   const intl = useIntl();
 
-  useEffect(() => {
-    fetchUserInfo();
-
-    if (initialState?.currentUser) {
-      followRedirect();
-    }
-  }, [initialState]);
-
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
 
@@ -54,6 +46,15 @@ const Login: React.FC = () => {
       }));
     }
   };
+
+  useEffect(() => {
+    fetchUserInfo();
+
+    if (initialState?.currentUser) {
+      followRedirect();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialState]);
 
   const handleSubmit = async (values: API.LoginParams) => {
     setSubmitting(true);

@@ -1,18 +1,19 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import React from 'react';
-import ProTable, { ActionType } from '@ant-design/pro-table';
-import type { ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import { Button } from 'antd';
-import { SortOrder } from 'antd/lib/table/interface';
+import type { SortOrder } from 'antd/lib/table/interface';
 import { DeleteFilled, EditFilled, PlusOutlined, RedoOutlined } from '@ant-design/icons';
-import MultiForm, { FormAction } from '@/components/ModalForm';
+import type { FormAction } from '@/components/ModalForm';
+import MultiForm from '@/components/ModalForm';
 import utils from '@/utils';
-import { ProFormInstance, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import type { ProFormInstance } from '@ant-design/pro-form';
+import { ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 
 type CrudApi<M> = API.SimpleCrud<M, any, any, any>;
 
-type SortType = {
-  [key: string]: SortOrder;
-};
+type SortType = Record<string, SortOrder>;
 
 type TableFetchResponse<M> = {
   data: M[];
@@ -177,7 +178,7 @@ export default class CrudTable<
 
     const options = {
       modal: this.modalRef.current!,
-      form: this.modalRef.current?.getFormInstance()!,
+      form: this.modalRef.current!.getFormInstance()!,
       crud: this.props.crud,
       onlyTrashed,
     };
@@ -221,9 +222,9 @@ export default class CrudTable<
         icon={<PlusOutlined />}
         type="primary"
         onClick={() => {
-          const modal = this.modalRef.current!;
+          const modalRef = this.modalRef.current!;
 
-          modal.set({
+          modalRef.set({
             action: 'creating',
             title: title || 'create',
             visible: true,
@@ -302,7 +303,7 @@ const defaultColumns: GetColumns = ({ onlyTrashed, modal, crud }) => [
               children="Restore"
               onClick={() => {
                 modal.show({
-                  loadModel: async (form, modal) => {
+                  loadModel: async (form) => {
                     modal.set({
                       action: 'restoring',
                       content: 'restore this item?',
@@ -327,7 +328,7 @@ const defaultColumns: GetColumns = ({ onlyTrashed, modal, crud }) => [
               children="Edit"
               onClick={() => {
                 modal.show({
-                  loadModel: async (form, modal) => {
+                  loadModel: async (form) => {
                     modal.set({
                       action: 'editing',
                     });
@@ -350,7 +351,7 @@ const defaultColumns: GetColumns = ({ onlyTrashed, modal, crud }) => [
             children={onlyTrashed ? 'Delete Permanently' : 'Delete'}
             onClick={() => {
               modal.show({
-                loadModel: async (form, modal) => {
+                loadModel: async (form) => {
                   modal.set({
                     content: 'Are you sure delete this task?',
                     action: 'deleting',
@@ -375,7 +376,7 @@ const defaultColumns: GetColumns = ({ onlyTrashed, modal, crud }) => [
   },
 ];
 
-const getDefaultInputs: GetFormInputs = ({}) => {
+const getDefaultInputs: GetFormInputs = () => {
   return (
     <>
       <ProFormText name="name" label="Name" rules={[{ required: true }]} />

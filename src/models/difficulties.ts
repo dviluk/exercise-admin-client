@@ -1,32 +1,69 @@
-import { useCallback, useState } from 'react';
 import api from '@/services/api';
+import { normalizeCollection } from '@/utils/models';
+import { useCallback, useState } from 'react';
+import { createSelector } from 'reselect';
 
 type Select = API.Difficulties.Select;
+type SelectById = Record<string, Select>;
 
-export default () => {
-  const [selectItems, setSelectItems] = useState<Select>([]);
-  const [selectItemsFetched, setSelectItemsFetched] = useState(false);
+export type DifficultiesModel = {
+  select: {
+    items: Select[];
+    byId: SelectById;
+    ids: string[];
+    loading: boolean;
+    fetched: boolean;
+    fetch: () => Promise<void>;
+  };
+};
 
-  const fetchSelect = useCallback(async (force: boolean = false) => {
-    if (!force && selectItemsFetched === true) {
-      return;
-    }
+type SelectType = {
+  ids: string[];
+  byId: SelectById;
+};
 
-    try {
-      const req = await api.difficulties.select();
+const selectDifficulties = (state: SelectType) => state;
 
-      if (req.success === true) {
-        setSelectItemsFetched(true);
-        setSelectItems(req.data);
+export const selectDifficultiesSelector = createSelector(selectDifficulties, ({ ids, byId }) =>
+  ids.map((id) => byId[id]),
+);
+
+export default (): DifficultiesModel => {
+  const [selectItems, setSelectItems] = useState<SelectType>({ ids: [], byId: {} });
+  const [selectFetched, setSelectFetched] = useState(false);
+  const [selectLoading, setSelectLoading] = useState(false);
+
+  const fetchSelect = useCallback(
+    async (force: boolean = false) => {
+      if ((!force && selectFetched === true) || selectLoading) {
+        return;
       }
-    } catch (e) {}
-  }, []);
+
+      setSelectLoading(true);
+
+      try {
+        const req = await api.difficulties.select();
+
+        if (req.success === true) {
+          setSelectFetched(true);
+
+          setSelectItems(normalizeCollection(req.data, 'value'));
+          setSelectLoading(false);
+        }
+      } catch (e) {
+        //
+      }
+    },
+    [selectFetched, selectLoading],
+  );
 
   return {
     select: {
-      fetched: selectItemsFetched,
-      items: selectItems,
+      loading: selectLoading,
+      fetched: selectFetched,
       fetch: fetchSelect,
+      ...selectItems,
+      items: selectDifficultiesSelector(selectItems),
     },
   };
 };

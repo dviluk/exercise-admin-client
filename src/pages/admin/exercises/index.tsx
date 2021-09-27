@@ -1,14 +1,15 @@
-import { useEffect } from 'react';
-import { PageContainer } from '@ant-design/pro-layout';
-import type { ExercisesApiType } from '@/services/api';
-import api from '@/services/api';
 import type { CrudTableProps } from '@/components/CrudTable';
 import CrudTable from '@/components/CrudTable';
-import { ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import { Button, Image } from 'antd';
-import { DeleteFilled, EditFilled, RedoOutlined } from '@ant-design/icons';
-import { useModel } from 'umi';
+import ProSelectFromModel from '@/components/Fields/Pro/ProSelectFromModel';
 import ProSelectImage from '@/components/Fields/Pro/ProSelectImage';
+import type { ExercisesApiType } from '@/services/api';
+import api from '@/services/api';
+import { DeleteFilled, EditFilled, RedoOutlined } from '@ant-design/icons';
+import { ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { PageContainer } from '@ant-design/pro-layout';
+import { Button, Image } from 'antd';
+import { useEffect } from 'react';
+import { useModel } from 'umi';
 
 type Model = API.Exercises.Model;
 type FormInputs = API.Exercises.FormInput;
@@ -64,6 +65,7 @@ export default () => {
       valueType: 'select',
       fieldProps: {
         defaultValue: '',
+        loading: difficulties.select.loading,
         options: [
           {
             value: '',
@@ -216,6 +218,7 @@ export default () => {
         <ProSelectImage
           name="image"
           label="Image"
+          rules={[{ required: true }]}
           fieldProps={{
             defaultImageUrl: model && model.image_url,
             defaultImageThumbnailUrl: model && model.image_thumbnail_url,
@@ -232,6 +235,12 @@ export default () => {
         />
         <ProFormText name="name" label="Name" rules={[{ required: true }]} />
         <ProFormTextArea name="description" label="Description" rules={[{ required: true }]} />
+        <ProSelectFromModel
+          name="difficulty_id"
+          label="Difficulty"
+          model="difficulties"
+          rules={[{ required: true }]}
+        />
       </>
     );
   };

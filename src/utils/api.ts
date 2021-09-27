@@ -1,7 +1,7 @@
 import { objectToFormData } from '@/utils/form';
 import request from '@/utils/request';
 
-export function simpleCrud<M, CP, FI, SL = any, EM = {}>(
+export function simpleCrud<M, CP, FI, SL = unknown, EM = unknown>(
   name: string,
   extraMethods?: EM,
 ): API.SimpleCrud<M, CP, FI, SL, EM> {
@@ -23,14 +23,14 @@ export function simpleCrud<M, CP, FI, SL = any, EM = {}>(
     select: async (data?: CP, options?: any) => {
       const newData: any = { ...data, select: true };
 
-      return request<API.Response<SL>>(`/api/v1/${name}`, {
+      return request<API.CollectionResponse<SL>>(`/api/v1/${name}`, {
         ...options,
         method: 'GET',
         params: newData,
       });
     },
     store: async (data: Partial<FI>, options?: any) => {
-      var formData = objectToFormData(data);
+      const formData = objectToFormData(data);
       return request<API.Response<M>>(`/api/v1/${name}`, {
         ...options,
         method: 'POST',
@@ -38,7 +38,7 @@ export function simpleCrud<M, CP, FI, SL = any, EM = {}>(
       });
     },
     update: async (id: string, data: Partial<FI & API.OnlyTrashed>, options?: any) => {
-      var formData = objectToFormData(data);
+      const formData = objectToFormData(data);
       return request<API.Response<M>>(`/api/v1/${name}/${id}`, {
         ...options,
         method: 'PUT',

@@ -1,4 +1,4 @@
-import { ProFormInstance } from '@ant-design/pro-form';
+import type { ProFormInstance } from '@ant-design/pro-form';
 
 /**
  * Muestra en el formulario los errores generados en el servidor.
@@ -8,9 +8,9 @@ import { ProFormInstance } from '@ant-design/pro-form';
  */
 export function setErrors<T>(form: ProFormInstance<T>, e: any) {
   // TODO: Buscar manera de obtener el código 422 del error
-  const data = e.data;
+  const { data } = e;
   if (data && data.errors) {
-    var errors = data.errors;
+    const { errors } = data;
 
     const fields: any[] = Object.keys(data.errors).map((key) => {
       return {
@@ -32,31 +32,27 @@ export function setErrors<T>(form: ProFormInstance<T>, e: any) {
  * @returns
  */
 export function objectToFormData(obj: any, rootName?: string, ignoreList?: string[]) {
-  var formData = new FormData();
+  const formData = new FormData();
 
   function appendFormData(data: any, root?: string) {
     if (!ignore(root)) {
-      root = root || '';
+      const newRoot = root || '';
       if (data instanceof File) {
-        formData.append(root, data);
+        formData.append(newRoot, data);
       } else if (Array.isArray(data)) {
-        for (var i = 0; i < data.length; i++) {
-          appendFormData(data[i], root + '[' + i + ']');
+        for (let i = 0; i < data.length; i += 1) {
+          appendFormData(data[i], `${newRoot}[${i}]`);
         }
-      } else if (typeof data === 'object' && data) {
-        for (var key in data) {
-          if (data.hasOwnProperty(key)) {
-            if (root === '') {
-              appendFormData(data[key], key);
-            } else {
-              appendFormData(data[key], root + '.' + key);
-            }
+      } else if (typeof data === 'object') {
+        Object.keys(data).forEach((key) => {
+          if (newRoot === '') {
+            appendFormData(data[key], key);
+          } else {
+            appendFormData(data[key], `${newRoot}.${key}`);
           }
-        }
-      } else {
-        if (data !== null && typeof data !== 'undefined') {
-          formData.append(root, data);
-        }
+        });
+      } else if (data !== null && data !== undefined) {
+        formData.append(newRoot, data);
       }
     }
   }
@@ -64,7 +60,7 @@ export function objectToFormData(obj: any, rootName?: string, ignoreList?: strin
   function ignore(root?: string) {
     return (
       Array.isArray(ignoreList) &&
-      ignoreList.some(function (x) {
+      ignoreList.some((x) => {
         return x === root;
       })
     );

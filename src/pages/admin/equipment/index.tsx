@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import { Button, Image } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import { DeleteFilled, EditFilled, RedoOutlined } from '@ant-design/icons';
 import { ProFormText, ProFormTextArea, ProFormUploadButton } from '@ant-design/pro-form';
-import CrudTable, { CrudTableProps } from '@/components/CrudTable';
-import api, { EquipmentApiType } from '@/services/api';
+import type { CrudTableProps } from '@/components/CrudTable';
+import CrudTable from '@/components/CrudTable';
+import type { EquipmentApiType } from '@/services/api';
+import api from '@/services/api';
 
 type Model = API.Equipment.Model;
 type FormInputs = API.Equipment.FormInput;
@@ -153,7 +156,7 @@ const getColumns: CrudProps['columns'] = ({ onlyTrashed, modal, crud }) => [
               children="Restore"
               onClick={() => {
                 modal.show({
-                  loadModel: async (form, modal) => {
+                  loadModel: async (form) => {
                     modal.set({
                       action: 'restoring',
                       content: 'restore this item?',
@@ -178,7 +181,7 @@ const getColumns: CrudProps['columns'] = ({ onlyTrashed, modal, crud }) => [
               children="Edit"
               onClick={() => {
                 modal.show({
-                  loadModel: async (form, modal) => {
+                  loadModel: async (form) => {
                     modal.set({
                       action: 'editing',
                     });
@@ -201,7 +204,7 @@ const getColumns: CrudProps['columns'] = ({ onlyTrashed, modal, crud }) => [
             children={onlyTrashed ? 'Delete Permanently' : 'Delete'}
             onClick={() => {
               modal.show({
-                loadModel: async (form, modal) => {
+                loadModel: async (form) => {
                   modal.set({
                     content: 'Are you sure delete this task?',
                     action: 'deleting',

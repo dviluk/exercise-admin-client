@@ -6,7 +6,6 @@ import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import { currentUser as queryCurrentUser } from './services/api/session';
 import moment from 'moment-timezone';
-import _ from 'lodash';
 
 // const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -91,24 +90,29 @@ const AddMiscHeadersInterceptor = (url: string, options: any) => {
 };
 
 const ChangeContentTypeIfFormData = (url: string, options: any) => {
+  const newOptions = { ...options };
+
   const headers: any = {
-    ...options.headers,
+    ...newOptions.headers,
   };
 
-  if (options.body instanceof FormData) {
+  if (newOptions.body instanceof FormData) {
     // Esto lo haría automaticamente si no se utilizara AddMiscHeadersInterceptor
     delete headers['Content-Type'];
 
-    if (String(options.method).toLowerCase() !== 'post') {
-      const currentMethod = options.method;
-      options.method = 'POST';
-      options.body.append('_method', currentMethod);
+    if (String(newOptions.method).toLowerCase() !== 'post') {
+      const currentMethod = newOptions.method;
+      newOptions.method = 'POST';
+      newOptions.body.append('_method', currentMethod);
     }
   }
 
+  newOptions.headers = headers;
+  newOptions.interceptors = true;
+
   return {
     url,
-    options: { ...options, interceptors: true, headers },
+    options: newOptions,
   };
 };
 
@@ -152,22 +156,26 @@ function AttachUserTimeZoneInterceptor(url: string, options: any) {
 }
 
 function TransformMethodInterceptor(url: string, options: any) {
-  const method = String(options.method).toLowerCase();
+  const newOptions = { ...options };
+
+  const method = String(newOptions.method).toLowerCase();
 
   if (method === 'get') {
     //
   } else if (method !== 'post') {
-    options.data = {
-      ...options.data,
-      _method: options.method,
+    newOptions.data = {
+      ...newOptions.data,
+      _method: newOptions.method,
     };
 
-    options.method = 'POST';
+    newOptions.method = 'POST';
   }
+
+  newOptions.interceptors = true;
 
   return {
     url,
-    options: { ...options, interceptors: true },
+    options: newOptions,
   };
 }
 

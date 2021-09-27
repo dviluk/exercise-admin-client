@@ -35,6 +35,7 @@ if (pwa) {
         worker.postMessage({ type: 'skip-waiting' }, [channel.port2]);
       });
       // Refresh current page to use the updated HTML and other assets after SW has skiped waiting
+      // @ts-ignore
       window.location.reload(true);
       return true;
     };
@@ -73,7 +74,7 @@ if (pwa) {
   });
 
   // remove all caches
-  if (window.caches && window.caches.keys()) {
+  if (window.caches && window.caches.keys !== undefined) {
     caches.keys().then((keys) => {
       keys.forEach((key) => {
         caches.delete(key);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { request as req } from 'umi';
 
 type ResponseType = 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData';
@@ -9,7 +10,7 @@ interface Cancel {
 interface CancelToken {
   promise: Promise<Cancel>;
   reason?: Cancel;
-  throwIfRequested(): void;
+  throwIfRequested: () => void;
 }
 
 interface ResponseError<D = any> extends Error {
@@ -51,7 +52,7 @@ interface RequestOptionsWithResponse extends RequestOptionsInit {
 
 type Options = RequestOptionsWithResponse & { skipErrorHandler?: boolean };
 
-export type RequestOptions<ExtraOptions = {}> = Options & Partial<ExtraOptions>;
+export type RequestOptions<ExtraOptions = unknown> = Options & Partial<ExtraOptions>;
 
 export default function request<T>(url: any, options: RequestOptions) {
   return req(url, options) as unknown as Promise<T>;

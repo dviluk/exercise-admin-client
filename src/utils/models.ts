@@ -1,3 +1,5 @@
+import { createSelector } from 'reselect';
+
 export function normalizeCollection<T extends Record<string, any>>(
   collection: T[],
   key: keyof T = 'id',
@@ -12,4 +14,12 @@ export function normalizeCollection<T extends Record<string, any>>(
   });
 
   return { ids, byId };
+}
+
+export function denormalizeCollection<T>(state: T) {
+  return createSelector(
+    (s: T) => s,
+    // @ts-ignore
+    ({ ids, byId }) => ids.map((id) => byId[id]),
+  )(state);
 }

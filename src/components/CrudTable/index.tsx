@@ -14,6 +14,12 @@ type SortType = {
   [key: string]: SortOrder;
 };
 
+type TableFetchResponse<M> = {
+  data: M[];
+  success: boolean;
+  total: number;
+} & Record<string, any>;
+
 interface Refs<M, FI> {
   /**
    * Instancia del Modal.
@@ -193,16 +199,16 @@ export default class CrudTable<
     return formInputs(props);
   };
 
-  private fetchData = async (params: TP, sort: SortType): Promise<API.CollectionResponse<M>> => {
+  private fetchData = async (params: TP, sort: SortType): Promise<TableFetchResponse<M>> => {
     const { crud } = this.props;
 
     const data: any = utils.table.handleTableParams<CP>(params, sort);
 
     this.setState({ onlyTrashed: !!data.onlyTrashed });
 
-    const response: any = await crud.all(data);
+    const response = await crud.all(data);
 
-    return response;
+    return { ...response, total: response.meta.total };
   };
 
   renderToolbar = () => {

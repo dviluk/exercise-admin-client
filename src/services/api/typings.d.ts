@@ -58,7 +58,17 @@ declare namespace API {
     message?: string;
   };
 
-  type CollectionResponse<T> = Response<T[]> & { total: number };
+  type CollectionResponse<T> = Response<T[]> & {
+    meta: {
+      current_page: number;
+      per_page: number;
+      total: number;
+      from: number;
+      to: number;
+      last_page: number;
+      path: string;
+    };
+  };
 
   type PaginationParams<T> = T & {
     pageSize: number;

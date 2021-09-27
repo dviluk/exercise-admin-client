@@ -1,10 +1,25 @@
 import api from '@/services/api';
-import { normalizeCollection } from '@/utils/models';
+import { denormalizeCollection, normalizeCollection } from '@/utils/models';
 import { useCallback, useState } from 'react';
-import { createSelector } from 'reselect';
+
+type Model = API.Difficulties.Model;
+type ModelById = Record<string, Model>;
 
 type Select = API.Difficulties.Select;
 type SelectById = Record<string, Select>;
+
+type CollectionParams = API.Difficulties.CollectionParams;
+
+type FetchAllParams = {
+  params?: CollectionParams;
+  force?: boolean;
+};
+
+type Pagination = {
+  currentPage: number;
+  perPage: number;
+  total: number;
+};
 
 export type DifficultiesModel = {
   select: {
@@ -15,27 +30,42 @@ export type DifficultiesModel = {
     fetched: boolean;
     fetch: () => Promise<void>;
   };
+  all?: {
+    items: Model[];
+    byId: ModelById;
+    pagination: Pagination;
+    ids: string[];
+    loading: boolean;
+    fetched: boolean;
+    fetch: () => Promise<void>;
+  };
 };
 
-type SelectType = {
+type NormalizeCollection<T> = {
   ids: string[];
-  byId: SelectById;
+  byId: T;
 };
-
-const selectDifficulties = (state: SelectType) => state;
-
-export const selectDifficultiesSelector = createSelector(selectDifficulties, ({ ids, byId }) =>
-  ids.map((id) => byId[id]),
-);
 
 export default (): DifficultiesModel => {
-  const [selectItems, setSelectItems] = useState<SelectType>({ ids: [], byId: {} });
+  const [selectItems, setSelectItems] = useState<NormalizeCollection<SelectById>>({
+    ids: [],
+    byId: {},
+  });
   const [selectFetched, setSelectFetched] = useState(false);
   const [selectLoading, setSelectLoading] = useState(false);
 
+  const [allItems, setAllItems] = useState<NormalizeCollection<ModelById>>({ ids: [], byId: {} });
+  const [allFetched, setAllFetched] = useState(false);
+  const [allLoading, setAllLoading] = useState(false);
+  const [pagination, setPagination] = useState<Pagination>({
+    currentPage: 1,
+    perPage: 15,
+    total: 0,
+  });
+
   const fetchSelect = useCallback(
     async (force: boolean = false) => {
-      if ((!force && selectFetched === true) || selectLoading) {
+      if ((!force && selectFetched) || selectLoading) {
         return;
       }
 
@@ -47,15 +77,44 @@ export default (): DifficultiesModel => {
         if (req.success === true) {
           setSelectFetched(true);
 
-          setSelectItems(normalizeCollection(req.data, 'value'));
-          setSelectLoading(false);
+          const { data, meta } = req;
+          setSelectItems(normalizeCollection(data, 'value'));
+          setPagination({
+            currentPage: meta.current_page,
+            total: meta.total,
+            perPage: meta.per_page,
+          });
         }
       } catch (e) {
         //
+      } finally {
+        setSelectLoading(false);
       }
     },
     [selectFetched, selectLoading],
   );
+
+  const fetchAll = useCallback(async (options: FetchAllParams) => {
+    const { force, params } = options;
+
+    if ((!force && allFetched) || allLoading) {
+      return;
+    }
+
+    setAllLoading(true);
+
+    try {
+      const req = await api.difficulties.all(params);
+
+      if (req.success) {
+        setAllItems(normalizeCollection(req.data, 'id'));
+        setAllFetched(true);
+      }
+    } catch (e) {
+    } finally {
+      setAllLoading(false);
+    }
+  }, []);
 
   return {
     select: {
@@ -63,7 +122,7 @@ export default (): DifficultiesModel => {
       fetched: selectFetched,
       fetch: fetchSelect,
       ...selectItems,
-      items: selectDifficultiesSelector(selectItems),
+      items: denormalizeCollection(selectItems),
     },
   };
 };

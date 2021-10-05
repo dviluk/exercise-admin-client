@@ -178,7 +178,7 @@ export default class CrudTable<
 
     const options = {
       modal: this.modalRef.current!,
-      form: this.modalRef.current!.getFormInstance()!,
+      form: this.modalRef.current?.getFormInstance(),
       crud: this.props.crud,
       onlyTrashed,
     };

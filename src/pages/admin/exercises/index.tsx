@@ -23,6 +23,7 @@ export default () => {
 
   useEffect(() => {
     difficulties.select.fetch();
+    difficulties.all.fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

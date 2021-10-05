@@ -3,8 +3,9 @@ import { createSelector } from 'reselect';
 export function normalizeCollection<T extends Record<string, any>>(
   collection: T[],
   key: keyof T = 'id',
+  currentItems: string[],
 ) {
-  const ids: string[] = [];
+  const ids: string[] = [...currentItems];
   const byId: Record<string, T> = {};
 
   collection.forEach((element) => {

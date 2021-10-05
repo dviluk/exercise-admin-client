@@ -8,6 +8,8 @@ type ModelById = Record<string, Model>;
 type Select = API.Difficulties.Select;
 type SelectById = Record<string, Select>;
 
+type FormInput = API.Difficulties.FormInput;
+
 type CollectionParams = API.Difficulties.CollectionParams;
 
 type FetchAllParams = {
@@ -15,10 +17,14 @@ type FetchAllParams = {
   force?: boolean;
 };
 
+type CallbackOptions = { onError?: (e: Error) => void };
+
 type Pagination = {
   currentPage: number;
   perPage: number;
   total: number;
+  from: number;
+  to: number;
 };
 
 export type DifficultiesModel = {
@@ -30,15 +36,22 @@ export type DifficultiesModel = {
     fetched: boolean;
     fetch: () => Promise<void>;
   };
-  all?: {
+  all: {
     items: Model[];
     byId: ModelById;
+    /**
+     * Si se esta online la paginación no importa
+     */
     pagination: Pagination;
     ids: string[];
     loading: boolean;
     fetched: boolean;
-    fetch: () => Promise<void>;
+    fetch: (options?: FetchAllParams) => Promise<void>;
   };
+  destroy: (id: string, options: CallbackOptions) => Promise<void>;
+  destroying: boolean;
+  update: (id: string, data: FormInput, options: CallbackOptions) => Promise<void>;
+  updating: boolean;
 };
 
 type NormalizeCollection<T> = {
@@ -61,7 +74,12 @@ export default (): DifficultiesModel => {
     currentPage: 1,
     perPage: 15,
     total: 0,
+    from: 0,
+    to: 0,
   });
+
+  const [destroying, setDestroying] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   const fetchSelect = useCallback(
     async (force: boolean = false) => {
@@ -77,13 +95,8 @@ export default (): DifficultiesModel => {
         if (req.success === true) {
           setSelectFetched(true);
 
-          const { data, meta } = req;
-          setSelectItems(normalizeCollection(data, 'value'));
-          setPagination({
-            currentPage: meta.current_page,
-            total: meta.total,
-            perPage: meta.per_page,
-          });
+          const { data } = req;
+          setSelectItems(normalizeCollection(data, 'value', force ? [] : allItems.ids));
         }
       } catch (e) {
         //
@@ -94,8 +107,8 @@ export default (): DifficultiesModel => {
     [selectFetched, selectLoading],
   );
 
-  const fetchAll = useCallback(async (options: FetchAllParams) => {
-    const { force, params } = options;
+  const fetchAll = useCallback(async (options?: FetchAllParams) => {
+    const force = options?.force;
 
     if ((!force && allFetched) || allLoading) {
       return;
@@ -104,15 +117,93 @@ export default (): DifficultiesModel => {
     setAllLoading(true);
 
     try {
-      const req = await api.difficulties.all(params);
+      const req = await api.difficulties.all(options?.params);
 
       if (req.success) {
-        setAllItems(normalizeCollection(req.data, 'id'));
+        const { data, meta } = req;
+        setAllItems(normalizeCollection(data, 'id', force ? [] : allItems.ids));
+        setPagination({
+          currentPage: meta.current_page,
+          total: meta.total,
+          perPage: meta.per_page,
+          from: meta.from,
+          to: meta.to,
+        });
+
         setAllFetched(true);
       }
     } catch (e) {
+      //
     } finally {
       setAllLoading(false);
+    }
+  }, []);
+
+  const removeItem = useCallback(
+    (id: string) => {
+      const newItems = { ...allItems };
+
+      if (newItems.byId[id]) {
+        delete newItems.byId[id];
+      }
+
+      for (let i = 0; i <= newItems.ids.length; i += 1) {
+        const val = newItems.ids[i];
+        if (id === val) {
+          newItems.ids.splice(i, 1);
+          return;
+        }
+      }
+
+      setAllItems(newItems);
+    },
+    [allItems],
+  );
+
+  const updateItem = useCallback((id: string, data: FormInput) => {
+    const newItems = { ...allItems };
+
+    if (newItems[id]) {
+      newItems[id] = {
+        ...newItems[id],
+        ...data,
+      };
+
+      setAllItems(newItems);
+    }
+  }, []);
+
+  const update = useCallback(async (id: string, data: FormInput, options?: CallbackOptions) => {
+    setUpdating(true);
+    try {
+      const res = await api.difficulties.update(id, data);
+
+      if (res.success) {
+        updateItem(id, data);
+      }
+    } catch (e: any) {
+      if (options?.onError) {
+        options.onError(e);
+      }
+    } finally {
+      setUpdating(false);
+    }
+  }, []);
+
+  const destroy = useCallback(async (id: string, options?: CallbackOptions) => {
+    setDestroying(true);
+    try {
+      const res = await api.difficulties.destroy(id);
+
+      if (res) {
+        removeItem(id);
+      }
+    } catch (e: any) {
+      if (options?.onError) {
+        options.onError(e);
+      }
+    } finally {
+      setDestroying(false);
     }
   }, []);
 
@@ -124,5 +215,17 @@ export default (): DifficultiesModel => {
       ...selectItems,
       items: denormalizeCollection(selectItems),
     },
+    all: {
+      ...allItems,
+      items: denormalizeCollection(allItems),
+      fetch: fetchAll,
+      loading: allLoading,
+      fetched: allFetched,
+      pagination,
+    },
+    destroy,
+    destroying,
+    update,
+    updating,
   };
 };

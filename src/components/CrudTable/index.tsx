@@ -184,10 +184,10 @@ export default class CrudTable<
     };
 
     if (!columns) {
-      return defaultColumns(options);
+      return defaultColumns(options as any);
     }
 
-    return columns(options);
+    return columns(options as any);
   }
 
   private renderFormContent = (props: ModalFormInputsProps<M, FI>) => {
@@ -284,6 +284,25 @@ const defaultColumns: GetColumns = ({ onlyTrashed, modal, crud }) => [
       multiple: 3,
     },
   },
+  ...((onlyTrashed
+    ? [
+        {
+          title: 'delete_at',
+          dataIndex: 'deleted_at',
+          valueType: 'dateTime',
+          hideInSearch: true,
+          sorter: {
+            multiple: 4,
+          },
+        },
+        {
+          title: 'deleted_at',
+          dataIndex: 'deleted_at_range',
+          valueType: 'dateTimeRange',
+          hideInTable: true,
+        },
+      ]
+    : []) as any),
   {
     title: 'show_deleted',
     dataIndex: 'onlyTrashed',
@@ -309,7 +328,7 @@ const defaultColumns: GetColumns = ({ onlyTrashed, modal, crud }) => [
                       content: 'restore this item?',
                     });
 
-                    const response = await crud.find(item.id, { onlyTrashed });
+                    const response = await crud.edit(item.id, { onlyTrashed });
 
                     modal.set({
                       title: `restore equipment: ${response.data.name}`,
@@ -333,7 +352,7 @@ const defaultColumns: GetColumns = ({ onlyTrashed, modal, crud }) => [
                       action: 'editing',
                     });
 
-                    const response = await crud.find(item.id, { onlyTrashed });
+                    const response = await crud.edit(item.id, { onlyTrashed });
 
                     modal.setTitle(`edit equipment: ${response.data.name}`);
                     modal.setModel(response.data);
@@ -358,7 +377,7 @@ const defaultColumns: GetColumns = ({ onlyTrashed, modal, crud }) => [
                     type: 'danger',
                   });
 
-                  const response = await crud.find(item.id, { onlyTrashed });
+                  const response = await crud.edit(item.id, { onlyTrashed });
 
                   modal.set({
                     title: `delete equipment: ${response.data.name}`,

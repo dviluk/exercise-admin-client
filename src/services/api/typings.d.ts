@@ -25,6 +25,7 @@ declare namespace API {
     EM = {},
   > = {
     find: (id: string, data?: any, options?: any) => Promise<API.Response<M>>;
+    edit: (id: string, data?: any, options?: any) => Promise<API.Response<M>>;
     all: (data?: CP) => Promise<API.CollectionResponse<M>>;
     select: (data?: CP) => Promise<API.CollectionResponse<SL>>;
     store: (data: Partial<FI>, options?: any) => Promise<API.Response<M>>;

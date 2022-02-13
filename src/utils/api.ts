@@ -13,6 +13,12 @@ export function simpleCrud<M, CP, FI, SL = unknown, EM = unknown>(
         params: data,
       });
     },
+    edit: async (id: string, data?: any, options?: any) => {
+      return request<API.Response<M>>(`/api/v1/${name}/${id}/edit`, {
+        ...options,
+        method: 'GET',
+      });
+    },
     all: async (data?: CP, options?: any) => {
       return request<API.CollectionResponse<M>>(`/api/v1/${name}`, {
         ...options,

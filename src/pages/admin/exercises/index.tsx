@@ -146,7 +146,7 @@ export default () => {
                         content: 'restore this item?',
                       });
 
-                      const response = await crud.find(item.id, { onlyTrashed });
+                      const response = await crud.edit(item.id, { onlyTrashed });
 
                       modal.set({
                         title: `restore equipment: ${response.data.name}`,
@@ -170,7 +170,7 @@ export default () => {
                         action: 'editing',
                       });
 
-                      const response = await crud.find(item.id, { onlyTrashed });
+                      const response = await crud.edit(item.id, { onlyTrashed });
 
                       modal.setTitle(`edit exercise: ${response.data.name}`);
                       modal.setModel(response.data);
@@ -195,7 +195,7 @@ export default () => {
                       type: 'danger',
                     });
 
-                    const response = await crud.find(item.id, { onlyTrashed });
+                    const response = await crud.edit(item.id, { onlyTrashed });
 
                     modal.set({
                       title: `delete exercise: ${response.data.name}`,
@@ -214,12 +214,14 @@ export default () => {
   ];
 
   const getFormInputs: CrudProps['formInputs'] = ({ model }) => {
+    const imageRequired = model && model.image_url ? false : true;
+    const illustrationRequired = model && model.illustration_url ? false : true;
     return (
       <>
         <ProSelectImage
           name="image"
           label="Image"
-          rules={[{ required: true }]}
+          rules={[{ required: imageRequired }]}
           fieldProps={{
             defaultImageUrl: model && model.image_url,
             defaultImageThumbnailUrl: model && model.image_thumbnail_url,
@@ -228,7 +230,7 @@ export default () => {
         <ProSelectImage
           name="illustration"
           label="Illustration"
-          rules={[{ required: true }]}
+          rules={[{ required: illustrationRequired }]}
           fieldProps={{
             defaultImageUrl: model && model.illustration_url,
             defaultImageThumbnailUrl: model && model.illustration_thumbnail_url,

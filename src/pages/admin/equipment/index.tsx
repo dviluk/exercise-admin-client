@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
+import { useState } from 'react';
 import { Button, Image } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import { DeleteFilled, EditFilled, RedoOutlined } from '@ant-design/icons';
@@ -13,25 +14,31 @@ type FormInputs = API.Equipment.FormInput;
 // type TableParams = API.Equipment.TableParams;
 // type CollectionParams = API.Equipment.CollectionParams;
 
-type CrudProps = CrudTableProps<Model, FormInputs, EquipmentApiType>;
+type CrudProps = Required<CrudTableProps<Model, FormInputs, EquipmentApiType>>;
 
 export default () => {
   return (
     <PageContainer>
-      <CrudTable crud={api.equipment} formInputs={getFormInputs} columns={getColumns} />
+      <CrudTable
+        crud={api.equipment}
+        formInputs={(props) => <MyFormInputs {...props} />}
+        columns={getColumns}
+      />
     </PageContainer>
   );
 };
 
-const getFormInputs: CrudProps['formInputs'] = ({ model, form }) => {
-  const modelLoaded = model !== undefined;
+const MyFormInputs: CrudProps['formInputs'] = ({ model, form }) => {
+  const [counter, forceUpdate] = useState(0);
+
+  const showImage = model !== undefined && form.getFieldValue('image') === undefined;
 
   return (
     <>
       <ProFormText hidden name="image" />
 
       <div style={{ textAlign: 'center' }}>
-        {modelLoaded && (
+        {showImage && (
           <Image
             src={model?.image_thumbnail_url}
             preview={{ src: model?.image_url }}
@@ -41,7 +48,7 @@ const getFormInputs: CrudProps['formInputs'] = ({ model, form }) => {
           />
         )}
         <ProFormUploadButton
-          listType={modelLoaded ? 'text' : 'picture-card'}
+          listType={showImage ? 'text' : 'picture-card'}
           rules={[{ required: true }]}
           fieldProps={{
             maxCount: 1,
@@ -49,7 +56,11 @@ const getFormInputs: CrudProps['formInputs'] = ({ model, form }) => {
               form.setFieldsValue({ image: undefined });
             },
             beforeUpload: (_, fileList) => {
-              form.setFieldsValue({ image: fileList[0] });
+              const imageUploaded = fileList[0];
+
+              form.setFieldsValue({ image: imageUploaded });
+
+              forceUpdate(counter + 1);
 
               return false;
             },

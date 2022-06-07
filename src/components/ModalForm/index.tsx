@@ -174,12 +174,17 @@ export default class MultiForm<T, M = any> extends React.Component<
   private renderChildren() {
     const { content, loading, model, action } = this.state;
     const { children } = this.props;
+
+    const form = this.getFormInstance();
+
     let contentToShow: any = null;
 
-    if (this.state.content) {
+    if (form === null) {
+      contentToShow = null;
+    } else if (this.state.content) {
       contentToShow = content;
     } else if (typeof children === 'function') {
-      contentToShow = children({ form: this.getFormInstance(), model, action, modal: this });
+      contentToShow = children({ form, model, action, modal: this });
     } else {
       contentToShow = children;
     }

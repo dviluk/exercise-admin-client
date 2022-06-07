@@ -47,7 +47,7 @@ type GetColumns<M = any, FI = any, CRUD = any> = (
   options: Refs<M, FI> & { onlyTrashed: boolean; crud: CRUD },
 ) => ProColumns<M>[];
 
-type GetFormInputs<M = any, FI = any> = (props: ModalFormInputsProps<M, FI>) => React.ReactNode;
+type GetFormInputs<M = any, FI = any> = React.FC<ModalFormInputsProps<M, FI>>;
 
 export interface CrudTableProps<M, FI, CRUD extends CrudApi<M>> {
   /**

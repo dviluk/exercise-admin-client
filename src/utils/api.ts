@@ -17,6 +17,7 @@ export function simpleCrud<M, CP, FI, SL = unknown, EM = unknown>(
       return request<API.Response<M>>(`/api/v1/${name}/${id}/edit`, {
         ...options,
         method: 'GET',
+        params: data,
       });
     },
     all: async (data?: CP, options?: any) => {
